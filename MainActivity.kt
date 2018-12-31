@@ -1,5 +1,6 @@
 package dh.com.listmaker
 
+import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.os.SharedMemory
@@ -17,12 +18,24 @@ import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.content_main.*
 
 
-/* Activity 변경사항
+/** Activity 변경사항
 *  add한 리스트를 adapter에 반영하기 위해 adapter 객체를 만들어서 adapter 에서 list 에 추가 후 notifyDatasetChanged를 변경한다.
 *  input 받은 리스트를 Adapter로 전달
 */
-class MainActivity : AppCompatActivity() {
 
+/**
+ * Click listener 생성한다.
+ * ListSelectionRecyclerViewClickListener 를 구현하면서
+ * onClicked 를 override 함
+ */
+class MainActivity : AppCompatActivity(), ListSelectionRecyclerViewAdapter.ListSelectionRecyclerViewClickListener {
+    override fun onClicked(list: TaskList) {
+        showListDetail(list)
+    }
+
+    companion object {
+        var INTENT_LIST_KEY = "list"
+    }
 //    lateinit var listRecyclerView: RecyclerView
     lateinit var listDataManager: ListDataManager
 
@@ -44,7 +57,7 @@ class MainActivity : AppCompatActivity() {
 
         //lists_recyclerview 가 바로 xml 을 참조할 수 있다면 아래 처럼 가능
         lists_recyclerview.layoutManager = LinearLayoutManager(this) as RecyclerView.LayoutManager?
-        lists_recyclerview.adapter = ListSelectionRecyclerViewAdapter(lists)
+        lists_recyclerview.adapter = ListSelectionRecyclerViewAdapter(lists, this)
 
 
         //그렇지 않다면 lateinit 한 listRecyclerView를 찾아서 해야함
@@ -87,10 +100,26 @@ class MainActivity : AppCompatActivity() {
 
             val recyclerViewAdapter = lists_recyclerview.adapter as ListSelectionRecyclerViewAdapter
             recyclerViewAdapter.addList(list)
-            dialog.dismiss()  }
+            dialog.dismiss()
+            //dialog 사라진 후에 detail activity를 부른다
+            showListDetail(list)
+        }
 
 
         builder.create().show()
+    }
+
+
+    fun showListDetail(list : TaskList){
+        var intent = Intent(this, ListDetailActivity::class.java)
+        /**
+         * Extra 에 TaskList를 바로 넣을 수 없기 때문에
+         * parcel 에 담아서 넣어야 한다
+         */
+//        intent.putExtra(INTENT_LIST_KEY, list)
+        intent.putExtra(INTENT_LIST_KEY, list)
+        startActivity(intent)
+
     }
 
 }
