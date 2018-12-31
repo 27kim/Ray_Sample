@@ -35,6 +35,7 @@ class MainActivity : AppCompatActivity(), ListSelectionRecyclerViewAdapter.ListS
 
     companion object {
         var INTENT_LIST_KEY = "list"
+        val LIST_DETAIL_REQUEST_CODE = 100
     }
 //    lateinit var listRecyclerView: RecyclerView
     lateinit var listDataManager: ListDataManager
@@ -118,8 +119,29 @@ class MainActivity : AppCompatActivity(), ListSelectionRecyclerViewAdapter.ListS
          */
 //        intent.putExtra(INTENT_LIST_KEY, list)
         intent.putExtra(INTENT_LIST_KEY, list)
-        startActivity(intent)
+//        startActivity(intent)
+        startActivityForResult(intent, LIST_DETAIL_REQUEST_CODE)
 
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if(requestCode == LIST_DETAIL_REQUEST_CODE){
+            data?.let{
+                var test = data
+                var daaa= ArrayList<String>()
+                daaa.add("허허허")
+                var task = TaskList("와놔", daaa)
+                listDataManager.saveList(task)
+//                listDataManager.saveList(data.getParcelableExtra<TaskList>(INTENT_LIST_KEY))
+                updateLists()
+            }
+        }
+    }
+
+    fun updateLists(){
+        val lists = listDataManager.readList()
+        lists_recyclerview.adapter = ListSelectionRecyclerViewAdapter(lists, this)
     }
 
 }
